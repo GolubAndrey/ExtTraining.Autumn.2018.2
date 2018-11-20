@@ -5,7 +5,7 @@ namespace No8
 {
     internal class CanonPrinter
     {
-        public CanonPrinter()
+        public CanonPrinter(string name,string model)
         {
             Name = "Canon";
             Model = "123x";

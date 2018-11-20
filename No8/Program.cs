@@ -25,12 +25,12 @@ namespace No8
 
             if (key.Key == ConsoleKey.D2)
             {
-                Print(new CanonPrinter());
+                //Print(new CanonPrinter());
             }
 
             if (key.Key == ConsoleKey.D3)
             {
-                Print(new EpsonPrinter());
+                //Print(new EpsonPrinter());
             }
 
             while (true)
