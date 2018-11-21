@@ -7,16 +7,32 @@ namespace No8.Solution
 {
     public abstract class Printer:IEquatable<Printer>
     {
+        /// <summary>
+        /// Printer's name
+        /// </summary>
         public string Name { get; set; }
 
+        /// <summary>
+        /// Printer's model
+        /// </summary>
         public string Model { get; set; }
 
+        /// <summary>
+        /// Printer constructor
+        /// </summary>
+        /// <param name="name">Printer's name</param>
+        /// <param name="model">Printer's model</param>
         public Printer(string name,string model)
         {
             Name = name;
             Model = model;
         }
 
+        /// <summary>
+        /// Return lines for output according to printer's type
+        /// </summary>
+        /// <param name="fs">Stream of file</param>
+        /// <returns>Output lines</returns>
         public virtual IEnumerable<string> GetTextForPrint(FileStream fs)
         {
             List<string> text = new List<string>();
@@ -26,7 +42,6 @@ namespace No8.Solution
             }
             return text;
         }
-        
         public bool Equals(Printer otherPrinter)
         {
             if (otherPrinter==null)

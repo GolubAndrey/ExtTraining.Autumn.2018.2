@@ -4,6 +4,7 @@ using System.Collections;
 using System.IO;
 using NLog;
 using System.Windows.Forms;
+using System.Linq;
 
 namespace No8.Solution
 {
@@ -12,7 +13,7 @@ namespace No8.Solution
 
     public class PrinterManager
     {
-        public event Action<string> OnPrint;
+        private event Action<string> OnPrint;
 
         Logger logger = LogManager.GetCurrentClassLogger();
 
@@ -22,6 +23,9 @@ namespace No8.Solution
         #endregion
 
         #region Constructors
+        /// <summary>
+        /// Constructor for printer manager
+        /// </summary>
         public PrinterManager()
         {
             printers = new List<Printer>();
@@ -30,7 +34,12 @@ namespace No8.Solution
         }
         #endregion
 
-        #region Common operations in manager
+        #region Printer list operations
+        /// <summary>
+        /// Add printer in printer manager
+        /// </summary>
+        /// <param name="p1">Printer</param>
+        /// <returns>true if successfully added, otherwise false</returns>
         public bool Add(Printer p1)
         {
             if (!Contains(p1))
@@ -45,6 +54,13 @@ namespace No8.Solution
             return false;
         }
 
+        /// <summary>
+        /// Take printer in printer manager
+        /// </summary>
+        /// <param name="name">Printer name</param>
+        /// <param name="model">Printer model</param>
+        /// <exception cref="ArgumentNullException">Throws when one of the arguments is null</exception>
+        /// <returns>Found printer</returns>
         public Printer Find(string name,string model)
         {
             if (name == null)
@@ -55,74 +71,30 @@ namespace No8.Solution
             {
                 throw new ArgumentNullException($"{nameof(model)} can't be null");
             }
-            foreach (Printer printer in printers)
-            {
-                if (printer.Name==name && printer.Model==model)
-                {
-                    return printer;
-                }
-            }
-            return null;
+            return printers.Where(t => t.Name == name && t.Model == model).FirstOrDefault();
         }
 
+        /// <summary>
+        /// Check for printer availability
+        /// </summary>
+        /// <param name="p">Printer</param>
+        /// <exception cref="ArgumentNullException">When argument is null</exception>
+        /// <returns>true if the printer is in stock, otherwise false</returns>
         public bool Contains(Printer p)
         {
             if (p == null)
             {
                 throw new ArgumentNullException($"{nameof(p)} can't be null");
             }
-            foreach (Printer printer in printers)
-            {
-                if (p.Equals(printer))
-                {
-                    return true;
-                }
-            }
-            return false;
+            return printers.Where(t => t.Equals(p)).Any();
         }
 
-        #endregion
-
-        public IEnumerable<string> TakeModels(string name)
-        {
-            List<string> result = new List<string>();
-            foreach(Printer printer in printers)
-            {
-                if (name==printer.Name)
-                {
-                    result.Add(printer.Model);
-                }
-            }
-            return result;
-        }
-        
-
-        public IEnumerable<string> Print(Printer printer,string fileName)
-        {
-            var o = new OpenFileDialog();
-            o.ShowDialog();
-            var f = File.OpenRead(o.FileName);
-
-            return GetTextForPrint(printer, f);
-        }
-
-        public void Log(string s)
-        {
-            logger.Info(s);
-        }
-
-        private IEnumerable<string> GetTextForPrint(Printer p, FileStream fs)
-        {
-            OnPrint($"Printer {p.Name} - {p.Model} began to print");
-            if (!Contains(p))
-            {
-                throw new InvalidOperationException($"In the list of printers no such {nameof(p)}");
-            }
-            List<string> resultList = (List<string>)p.GetTextForPrint(fs);
-            OnPrint($"Printer {p.Name} - {p.Model} has finished printing");
-            return resultList;
-        }
-
+        /// <summary>
+        /// Check for printer with this name availability
+        /// </summary>
+        /// <param name="name">Printer's name</param>
+        /// <exception cref="ArgumentNullException">Throws when the parameter is null</exception>
+        /// <returns>true if printer found, otherwise false</returns>
         public bool PrinterTypeContains(string name)
         {
             if (name == null)
@@ -131,12 +103,75 @@ namespace No8.Solution
             }
             return printerTypeList.Contains(name);
         }
+        #endregion
 
+        #region Get printers and their models
+        /// <summary>
+        /// Get all printers name
+        /// </summary>
+        /// <returns>List of all unique by name printers</returns>
         public IEnumerable<string> GetPrinterTypeList()
         {
             return printerTypeList;
         }
+        
+        /// <summary>
+        /// Take printers models with this name
+        /// </summary>
+        /// <param name="name">Printer name</param>
+        /// <returns>List of printers models</returns>
+        public IEnumerable<string> TakeModels(string name)
+        {
+            return printers.Where(t => t.Name == name).Select(t => t.Model);
+        }
+        #endregion
 
+        /// <summary>
+        /// Take lines for output
+        /// </summary>
+        /// <param name="printer">Printer</param>
+        /// <returns>Lines for output</returns>
+        public IEnumerable<string> Print(Printer printer)
+        {
+            var o = new OpenFileDialog();
+            o.ShowDialog();
+            var f = File.OpenRead(o.FileName);
+
+            return GetTextForPrint(printer, f);
+        }
+
+        #region logger
+        /// <summary>
+        /// Logs records to file
+        /// </summary>
+        /// <param name="s">Line for logging</param>
+        public void Log(string s)
+        {
+            logger.Info(s);
+        }
+        #endregion
+
+        #region private methods
+        private IEnumerable<string> GetTextForPrint(Printer p, FileStream fs)
+        {
+            OnPrint($"Printer {p.Name} - {p.Model} began to print");
+            if (!Contains(p))
+            {
+                throw new InvalidOperationException($"In the list of printers no such {nameof(p)}");
+            }
+            List<string> resultList = p.GetTextForPrint(fs).ToList();
+            OnPrint($"Printer {p.Name} - {p.Model} has finished printing");
+            return resultList;
+        }
+        #endregion
+
+        #region For printer creator
+
+        /// <summary>
+        /// Check printer in list of all unique printers
+        /// </summary>
+        /// <param name="value">Printer's name</param>
+        /// <returns></returns>
         public bool isEnumValueDefined(string value)
         {
             if (value == null)
@@ -145,6 +180,7 @@ namespace No8.Solution
             }
             return Enum.IsDefined(typeof(Printers), value);
         }
-        
+        #endregion
+
     }
 }

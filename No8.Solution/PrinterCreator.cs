@@ -8,6 +8,13 @@ namespace No8.Solution
 {
     public class PrinterCreator
     {
+        /// <summary>
+        /// Create printer according his class name
+        /// </summary>
+        /// <param name="printerClass">Printer from list of all unique printers</param>
+        /// <param name="name">Printer's name</param>
+        /// <param name="model">Printer's model</param>
+        /// <returns></returns>
         public Printer CreatePrinter(Printers printerClass,string name,string model)
         {
             string fullName = $"{GetType().Namespace}.{printerClass.ToString()}";
