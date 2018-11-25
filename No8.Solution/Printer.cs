@@ -35,6 +35,10 @@ namespace No8.Solution
         /// <returns>Output lines</returns>
         public virtual IEnumerable<string> GetTextForPrint(FileStream fs)
         {
+            if (fs==null)
+            {
+                throw new ArgumentNullException($"{nameof(fs)} can't be null");
+            }
             List<string> text = new List<string>();
             for (int i = 0; i < fs.Length; i++)
             {

@@ -17,6 +17,14 @@ namespace No8.Solution
         /// <returns></returns>
         public Printer CreatePrinter(Printers printerClass,string name,string model)
         {
+            if (name==null)
+            {
+                throw new ArgumentNullException($"{name} can't be null");
+            }
+            if (model == null)
+            {
+                throw new ArgumentNullException($"{model} can't be null");
+            }
             string fullName = $"{GetType().Namespace}.{printerClass.ToString()}";
             Type t;
             try

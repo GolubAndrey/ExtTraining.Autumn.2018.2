@@ -42,6 +42,10 @@ namespace No8.Solution
         /// <returns>true if successfully added, otherwise false</returns>
         public bool Add(Printer p1)
         {
+            if (p1==null)
+            {
+                throw new ArgumentNullException($"{nameof(p1)} can't be null");
+            }
             if (!Contains(p1))
             {
                 if (!printerTypeList.Contains(p1.Name))
@@ -131,13 +135,9 @@ namespace No8.Solution
         /// </summary>
         /// <param name="printer">Printer</param>
         /// <returns>Lines for output</returns>
-        public IEnumerable<string> Print(Printer printer)
+        public IEnumerable<string> Print(Printer printer,FileStream fileStream)
         {
-            var o = new OpenFileDialog();
-            o.ShowDialog();
-            var f = File.OpenRead(o.FileName);
-
-            return GetTextForPrint(printer, f);
+            return GetTextForPrint(printer, fileStream);
         }
 
         #region logger
@@ -154,6 +154,10 @@ namespace No8.Solution
         #region private methods
         private IEnumerable<string> GetTextForPrint(Printer p, FileStream fs)
         {
+            if (p==null)
+            {
+                throw new ArgumentNullException($"{nameof(p)} can't be null");
+            }
             OnPrint($"Printer {p.Name} - {p.Model} began to print");
             if (!Contains(p))
             {
